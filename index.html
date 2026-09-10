@@ -1,0 +1,1506 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ECO BREAKOUT</title>
+
+<style>
+*{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+}
+
+html,body{
+    width:100%;
+    height:100%;
+    overflow:hidden;
+    font-family:"Courier New",monospace;
+    background:#202830;
+}
+
+button{
+    font-family:inherit;
+    cursor:pointer;
+}
+
+.pantalla{
+    position:absolute;
+    inset:0;
+    display:none;
+}
+
+.pantalla.activa{
+    display:block;
+}
+
+.imagen-pantalla{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    display:block;
+}
+
+/* =========================
+   BOTONES DE LAS PANTALLAS
+========================= */
+
+.boton-invisible{
+    position:absolute;
+    background:transparent;
+    border:0;
+    z-index:20;
+}
+
+/* PORTADA */
+
+#play{
+    left:28%;
+    top:28%;
+    width:44%;
+    height:18%;
+}
+
+#config{
+    left:28%;
+    top:45%;
+    width:44%;
+    height:13%;
+}
+
+#idioma{
+    left:28%;
+    top:58%;
+    width:44%;
+    height:13%;
+}
+
+/* PERSONAJES */
+
+.personaje-btn{
+    top:0;
+    width:22%;
+    height:82%;
+}
+
+#personaje1{
+    left:5%;
+}
+
+#personaje2{
+    left:28%;
+}
+
+#personaje3{
+    left:51%;
+}
+
+#personaje4{
+    left:74%;
+}
+
+#continuar{
+    right:0;
+    bottom:0;
+    width:15%;
+    height:25%;
+}
+
+/* HISTORIA */
+
+#comenzar{
+    left:2%;
+    top:25%;
+    width:35%;
+    height:18%;
+}
+
+#tutorial{
+    left:2%;
+    top:43%;
+    width:35%;
+    height:18%;
+}
+
+#saltar{
+    right:0;
+    bottom:0;
+    width:15%;
+    height:22%;
+}
+
+/* =========================
+   MAPA
+========================= */
+
+#mapa{
+    background:#80c7ed;
+}
+
+.cielo{
+    position:absolute;
+    inset:0 0 55% 0;
+    background:#82c9ed;
+}
+
+.pasto{
+    position:absolute;
+    inset:45% 0 0;
+    background:
+    repeating-linear-gradient(
+        0deg,
+        rgba(20,80,30,.12) 0 18px,
+        transparent 18px 36px
+    ),
+    #70b84f;
+}
+
+.camino{
+    position:absolute;
+    left:5%;
+    right:5%;
+    bottom:5%;
+    height:25%;
+    background:#d8c69c;
+    border:5px solid #9e906d;
+    transform:skewY(-5deg);
+}
+
+.nube{
+    position:absolute;
+    width:140px;
+    height:40px;
+    background:white;
+    border-radius:30px;
+    opacity:.8;
+}
+
+.nube::before,
+.nube::after{
+    content:"";
+    position:absolute;
+    background:white;
+    border-radius:50%;
+}
+
+.nube::before{
+    width:70px;
+    height:70px;
+    left:25px;
+    top:-35px;
+}
+
+.nube::after{
+    width:80px;
+    height:80px;
+    left:70px;
+    top:-45px;
+}
+
+.nube1{
+    left:8%;
+    top:10%;
+}
+
+.nube2{
+    right:10%;
+    top:18%;
+}
+
+.nube3{
+    left:45%;
+    top:7%;
+}
+
+/* COLEGIO */
+
+.colegio{
+    position:absolute;
+    left:25%;
+    top:27%;
+    width:50%;
+    height:42%;
+    background:#f7f1df;
+    border:8px solid #30383d;
+    box-shadow:10px 10px #505a60;
+}
+
+.techo{
+    position:absolute;
+    left:-5%;
+    top:-28%;
+    width:110%;
+    height:35%;
+    background:#b63c3c;
+    clip-path:polygon(50% 0,100% 100%,0 100%);
+}
+
+.titulo-colegio{
+    text-align:center;
+    margin-top:8%;
+    font-size:clamp(18px,3vw,38px);
+    font-weight:bold;
+}
+
+.puertas{
+    display:flex;
+    justify-content:center;
+    gap:3%;
+    margin-top:5%;
+}
+
+.puerta{
+    width:28%;
+    height:120px;
+    background:#9ed1e8;
+    border:6px solid #222;
+    box-shadow:5px 5px #666;
+    font-weight:bold;
+    cursor:pointer;
+    transition:background 0.2s;
+}
+
+.puerta:hover{
+    background:#7eb8d8;
+}
+
+.jugador{
+    position:absolute;
+    width:75px;
+    height:110px;
+    left:50%;
+    bottom:28%;
+    transform:translateX(-50%);
+    z-index:10;
+}
+
+.jugador img{
+    width:100%;
+    height:100%;
+    object-fit:contain;
+}
+
+/* HUD */
+
+.hud{
+    position:absolute;
+    right:2%;
+    top:2%;
+    display:flex;
+    gap:10px;
+    z-index:30;
+}
+
+.hud-box{
+    background:white;
+    border:4px solid #111;
+    padding:8px 12px;
+    box-shadow:4px 4px #555;
+    font-weight:bold;
+}
+
+/* =========================
+   BOTÓN VOLVER
+========================= */
+
+.btn-volver{
+    position:absolute;
+    top:10px;
+    left:10px;
+    padding:10px 15px;
+    background:white;
+    border:4px solid #111;
+    box-shadow:4px 4px #555;
+    font-weight:bold;
+    z-index:30;
+    cursor:pointer;
+    transition:background 0.2s;
+}
+
+.btn-volver:hover{
+    background:#f0f0f0;
+}
+
+/* =========================
+   SALÓN
+========================= */
+
+#salon{
+    background:#9bd3ed;
+}
+
+.pared{
+    position:absolute;
+    inset:0 0 50% 0;
+    background:#edf8fa;
+    border-bottom:10px solid #65757c;
+}
+
+.piso{
+    position:absolute;
+    inset:50% 0 0;
+    background:
+    repeating-linear-gradient(
+        0deg,
+        #d8c69e 0 35px,
+        #c8b488 35px 40px
+    );
+}
+
+.pizarra{
+    position:absolute;
+    left:8%;
+    top:10%;
+    width:40%;
+    height:25%;
+    background:#24513f;
+    border:10px solid #6b4b34;
+}
+
+.pizarra::after{
+    content:"ECO BREAKOUT";
+    color:white;
+    position:absolute;
+    left:8%;
+    top:30%;
+    font-size:25px;
+}
+
+.mesa{
+    position:absolute;
+    bottom:20%;
+    width:110px;
+    height:55px;
+    background:#8b5b3d;
+    border:6px solid #4a3023;
+}
+
+.mesa1{
+    left:12%;
+}
+
+.mesa2{
+    left:40%;
+}
+
+.mesa3{
+    left:68%;
+}
+
+.residuo{
+    position:absolute;
+    background:transparent;
+    border:0;
+    font-size:40px;
+    z-index:10;
+    cursor:pointer;
+    transition:transform 0.2s;
+}
+
+.residuo:hover{
+    transform:scale(1.2);
+}
+
+.residuo1{
+    left:20%;
+    bottom:10%;
+}
+
+.residuo2{
+    left:50%;
+    bottom:8%;
+}
+
+.residuo3{
+    right:15%;
+    bottom:17%;
+}
+
+.residuo4{
+    left:78%;
+    bottom:8%;
+}
+
+/* CATEGORÍAS */
+
+.categorias{
+    position:absolute;
+    bottom:2%;
+    left:50%;
+    transform:translateX(-50%);
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:center;
+    gap:8px;
+    z-index:20;
+}
+
+.categoria{
+    background:white;
+    border:4px solid #111;
+    padding:10px 14px;
+    box-shadow:4px 4px #555;
+    font-weight:bold;
+    cursor:pointer;
+    transition:background 0.2s;
+}
+
+.categoria:hover{
+    background:#f0f0f0;
+}
+
+/* =========================
+   CANCHA
+========================= */
+
+#cancha{
+    background:#70b84f;
+}
+
+.cielo-cancha{
+    position:absolute;
+    inset:0 0 50% 0;
+    background:#87cdef;
+}
+
+.cancha-piso{
+    position:absolute;
+    inset:45% 0 0;
+    background:#70b84f;
+}
+
+.campo{
+    position:absolute;
+    left:8%;
+    right:8%;
+    top:25%;
+    bottom:15%;
+    background:#6fa7d1;
+    border:8px solid #27353c;
+}
+
+.linea-centro{
+    position:absolute;
+    left:50%;
+    top:0;
+    bottom:0;
+    border-left:5px solid white;
+}
+
+.residuo-cancha{
+    position:absolute;
+    font-size:40px;
+    background:transparent;
+    border:0;
+    cursor:pointer;
+    transition:transform 0.2s;
+}
+
+.residuo-cancha:hover{
+    transform:scale(1.2);
+}
+
+/* =========================
+   MINIJUEGO
+========================= */
+
+#monstruo{
+    background:#68a95b;
+}
+
+.arena{
+    position:absolute;
+    inset:10% 6% 15%;
+    background:#8dcc70;
+    border:8px solid #18221b;
+}
+
+.hero{
+    position:absolute;
+    left:12%;
+    bottom:15%;
+    font-size:100px;
+}
+
+.monstruo-personaje{
+    position:absolute;
+    right:12%;
+    bottom:15%;
+    font-size:130px;
+}
+
+.vida{
+    position:absolute;
+    right:12%;
+    top:8%;
+    background:white;
+    border:4px solid #111;
+    padding:8px;
+    font-weight:bold;
+}
+
+.atacar{
+    position:absolute;
+    bottom:4%;
+    left:50%;
+    transform:translateX(-50%);
+    padding:12px 25px;
+    background:white;
+    border:5px solid #111;
+    box-shadow:6px 6px #555;
+    font-weight:bold;
+    cursor:pointer;
+    transition:background 0.2s;
+}
+
+.atacar:hover{
+    background:#f0f0f0;
+}
+
+/* =========================
+   MODAL
+========================= */
+
+.modal{
+    position:absolute;
+    inset:0;
+    background:rgba(0,0,0,.6);
+    display:none;
+    align-items:center;
+    justify-content:center;
+    z-index:100;
+}
+
+.modal.activo{
+    display:flex;
+}
+
+.modal-contenido{
+    width:min(700px,90%);
+    background:white;
+    border:7px solid #111;
+    box-shadow:10px 10px #222;
+    padding:25px;
+    animation:slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn{
+    from{
+        transform:scale(0.9);
+        opacity:0;
+    }
+    to{
+        transform:scale(1);
+        opacity:1;
+    }
+}
+
+.modal-contenido h2{
+    margin-bottom:15px;
+}
+
+.modal-contenido button{
+    padding:10px 18px;
+    margin-top:15px;
+    background:white;
+    border:4px solid #111;
+    cursor:pointer;
+    transition:background 0.2s;
+}
+
+.modal-contenido button:hover{
+    background:#f0f0f0;
+}
+
+/* MÓVIL */
+
+@media(max-width:700px){
+
+    .colegio{
+        left:8%;
+        width:84%;
+    }
+
+    .puerta{
+        font-size:10px;
+        height:90px;
+    }
+
+    .jugador{
+        width:55px;
+        height:90px;
+    }
+
+    .categoria{
+        font-size:10px;
+        padding:7px;
+    }
+
+    .btn-volver{
+        padding:8px 12px;
+        font-size:12px;
+    }
+
+}
+</style>
+</head>
+
+<body>
+
+<div id="juego">
+
+<!-- =========================
+     PORTADA ORIGINAL
+========================= -->
+
+<section id="inicio" class="pantalla activa">
+
+    <img src="images/page1.png"
+         class="imagen-pantalla"
+         alt="Portada ECO BREAKOUT">
+
+    <button id="play"
+            class="boton-invisible"
+            aria-label="Jugar">
+    </button>
+
+    <button id="config"
+            class="boton-invisible"
+            aria-label="Configuración">
+    </button>
+
+    <button id="idioma"
+            class="boton-invisible"
+            aria-label="Cambiar idioma">
+    </button>
+
+</section>
+
+
+<!-- =========================
+     SELECCIÓN DE PERSONAJE
+========================= -->
+
+<section id="personajes"
+         class="pantalla">
+
+    <img src="images/page2.png"
+         class="imagen-pantalla"
+         alt="Selecciona tu personaje">
+
+    <button id="personaje1"
+            class="boton-invisible personaje-btn"
+            data-personaje="1"
+            aria-label="Personaje 1">
+    </button>
+
+    <button id="personaje2"
+            class="boton-invisible personaje-btn"
+            data-personaje="2"
+            aria-label="Personaje 2">
+    </button>
+
+    <button id="personaje3"
+            class="boton-invisible personaje-btn"
+            data-personaje="3"
+            aria-label="Personaje 3">
+    </button>
+
+    <button id="personaje4"
+            class="boton-invisible personaje-btn"
+            data-personaje="4"
+            aria-label="Personaje 4">
+    </button>
+
+    <button id="continuar"
+            class="boton-invisible"
+            aria-label="Continuar">
+    </button>
+
+</section>
+
+
+<!-- =========================
+     HISTORIA
+========================= -->
+
+<section id="historia"
+         class="pantalla">
+
+    <img src="images/page3.png"
+         class="imagen-pantalla"
+         alt="La historia">
+
+    <button id="comenzar"
+            class="boton-invisible"
+            aria-label="Comenzar juego">
+    </button>
+
+    <button id="tutorial"
+            class="boton-invisible"
+            aria-label="Ver tutorial">
+    </button>
+
+    <button id="saltar"
+            class="boton-invisible"
+            aria-label="Saltar historia">
+    </button>
+
+</section>
+
+
+<!-- =========================
+     MAPA DEL COLEGIO
+========================= -->
+
+<section id="mapa"
+         class="pantalla">
+
+    <div class="cielo"></div>
+
+    <div class="nube nube1"></div>
+    <div class="nube nube2"></div>
+    <div class="nube nube3"></div>
+
+    <div class="pasto"></div>
+    <div class="camino"></div>
+
+    <div class="colegio">
+
+        <div class="techo"></div>
+
+        <div class="titulo-colegio">
+            ECO SCHOOL
+        </div>
+
+        <div class="puertas">
+
+            <button class="puerta"
+                    onclick="abrirSalon()">
+                SALÓN
+            </button>
+
+            <button class="puerta"
+                    onclick="abrirCancha()">
+                CANCHA
+            </button>
+
+            <button class="puerta"
+                    onclick="abrirSalon()">
+                CIENCIAS
+            </button>
+
+        </div>
+
+    </div>
+
+    <div class="hud">
+
+        <div class="hud-box">
+            🌱 ECO:
+            <span id="eco">
+                0
+            </span>%
+        </div>
+
+        <div class="hud-box">
+            🪙
+            <span id="monedas">
+                0
+            </span>
+        </div>
+
+    </div>
+
+    <div id="jugador"
+         class="jugador">
+    </div>
+
+</section>
+
+
+<!-- =========================
+     SALÓN
+========================= -->
+
+<section id="salon"
+         class="pantalla">
+
+    <button class="btn-volver" onclick="volverAlMapa()">
+        🏠 VOLVER
+    </button>
+
+    <div class="pared"></div>
+    <div class="piso"></div>
+
+    <div class="pizarra"></div>
+
+    <div class="mesa mesa1"></div>
+    <div class="mesa mesa2"></div>
+    <div class="mesa mesa3"></div>
+
+    <button class="residuo residuo1"
+            data-tipo="papel">
+        📄
+    </button>
+
+    <button class="residuo residuo2"
+            data-tipo="plastico">
+        🥤
+    </button>
+
+    <button class="residuo residuo3"
+            data-tipo="organico">
+        🍎
+    </button>
+
+    <button class="residuo residuo4"
+            data-tipo="metal">
+        🥫
+    </button>
+
+    <div class="categorias">
+
+        <button class="categoria"
+                data-categoria="organico">
+            ORGÁNICO
+        </button>
+
+        <button class="categoria"
+                data-categoria="papel">
+            APROVECHABLE
+        </button>
+
+        <button class="categoria"
+                data-categoria="plastico">
+            RECICLABLE
+        </button>
+
+        <button class="categoria"
+                data-categoria="general">
+            NO APROVECHABLE
+        </button>
+
+    </div>
+
+</section>
+
+
+<!-- =========================
+     CANCHA
+========================= -->
+
+<section id="cancha"
+         class="pantalla">
+
+    <button class="btn-volver" onclick="volverAlMapa()">
+        🏠 VOLVER
+    </button>
+
+    <div class="cielo-cancha"></div>
+    <div class="cancha-piso"></div>
+
+    <div class="campo">
+
+        <div class="linea-centro"></div>
+
+        <button class="residuo-cancha"
+                style="left:20%;bottom:15%"
+                data-tipo="papel">
+            📄
+        </button>
+
+        <button class="residuo-cancha"
+                style="left:45%;bottom:10%"
+                data-tipo="plastico">
+            🥤
+        </button>
+
+        <button class="residuo-cancha"
+                style="right:15%;bottom:20%"
+                data-tipo="organico">
+            🍎
+        </button>
+
+        <button class="residuo-cancha"
+                style="right:30%;bottom:10%"
+                data-tipo="metal">
+            🥫
+        </button>
+
+    </div>
+
+    <div class="categorias">
+
+        <button class="categoria"
+                data-categoria="organico">
+            ORGÁNICO
+        </button>
+
+        <button class="categoria"
+                data-categoria="papel">
+            APROVECHABLE
+        </button>
+
+        <button class="categoria"
+                data-categoria="plastico">
+            RECICLABLE
+        </button>
+
+        <button class="categoria"
+                data-categoria="general">
+            NO APROVECHABLE
+        </button>
+
+    </div>
+
+</section>
+
+
+<!-- =========================
+     MINIJUEGO
+========================= -->
+
+<section id="monstruo"
+         class="pantalla">
+
+    <button class="btn-volver" onclick="volverAlMapa()">
+        🏠 VOLVER
+    </button>
+
+    <div class="arena">
+
+        <div class="hero">
+            🧑‍🎓
+        </div>
+
+        <div class="monstruo-personaje">
+            👾
+        </div>
+
+        <div class="vida">
+            ❤️ HP:
+            <span id="vida">
+                5
+            </span>
+        </div>
+
+    </div>
+
+    <button id="atacar"
+            class="atacar">
+        ⚡ DERROTAR MONSTRUO
+    </button>
+
+</section>
+
+
+<!-- =========================
+     MODAL
+========================= -->
+
+<div id="modal"
+     class="modal">
+
+    <div class="modal-contenido">
+
+        <h2 id="modalTitulo">
+        </h2>
+
+        <p id="modalTexto">
+        </p>
+
+        <button onclick="cerrarModal()">
+            CERRAR
+        </button>
+
+    </div>
+
+</div>
+
+</div>
+
+
+<script>
+
+/* =========================
+   VARIABLES
+========================= */
+
+let personajeSeleccionado =
+    localStorage.getItem("personaje") || "1";
+
+let eco =
+    Number(localStorage.getItem("eco")) || 0;
+
+let monedas =
+    Number(localStorage.getItem("monedas")) || 0;
+
+let residuoSeleccionado = null;
+
+let vidaMonstruo = 5;
+
+let residuosRestantes = {
+    salon: 4,
+    cancha: 4
+};
+
+
+/* =========================
+   CAMBIAR PANTALLA
+========================= */
+
+function pantalla(id){
+
+    document
+    .querySelectorAll(".pantalla")
+    .forEach(function(p){
+        p.classList.remove("activa");
+    });
+
+    document
+    .getElementById(id)
+    .classList.add("activa");
+
+}
+
+
+/* =========================
+   VOLVER AL MAPA
+========================= */
+
+function volverAlMapa(){
+
+    pantalla("mapa");
+    residuoSeleccionado = null;
+
+}
+
+
+/* =========================
+   PLAY
+========================= */
+
+document
+.getElementById("play")
+.addEventListener("click",function(){
+
+    pantalla("personajes");
+
+});
+
+
+/* =========================
+   CONFIGURACIÓN
+========================= */
+
+document
+.getElementById("config")
+.addEventListener("click",function(){
+
+    abrirModal(
+        "CONFIGURACIÓN",
+        "🔊 Volumen: ACTIVADO<br><br>" +
+        "🎮 Controles: MOUSE / TOUCH<br><br>" +
+        "🖥️ Juego preparado para PC, móvil y tablet.<br><br>" +
+        "📱 Usa la tecla ESC para cerrar modales."
+    );
+
+});
+
+
+/* =========================
+   IDIOMA
+========================= */
+
+document
+.getElementById("idioma")
+.addEventListener("click",function(){
+
+    abrirModal(
+        "🌐 IDIOMA",
+        "English / Español"
+    );
+
+});
+
+
+/* =========================
+   PERSONAJES
+========================= */
+
+document
+.querySelectorAll(".personaje-btn")
+.forEach(function(boton){
+
+    boton.addEventListener("click",function(){
+
+        personajeSeleccionado =
+            boton.dataset.personaje;
+
+        localStorage.setItem(
+            "personaje",
+            personajeSeleccionado
+        );
+
+        abrirModal(
+            "PERSONAJE SELECCIONADO",
+            "Personaje #" + personajeSeleccionado + " elegido. ¡Bienvenido!"
+        );
+
+    });
+
+});
+
+
+/* =========================
+   CONTINUAR
+========================= */
+
+document
+.getElementById("continuar")
+.addEventListener("click",function(){
+
+    pantalla("historia");
+
+});
+
+
+/* =========================
+   HISTORIA
+========================= */
+
+document
+.getElementById("comenzar")
+.addEventListener("click",function(){
+
+    pantalla("mapa");
+    cargarJugador();
+
+});
+
+
+document
+.getElementById("saltar")
+.addEventListener("click",function(){
+
+    pantalla("mapa");
+    cargarJugador();
+
+});
+
+
+document
+.getElementById("tutorial")
+.addEventListener("click",function(){
+
+    abrirModal(
+        "📚 TUTORIAL",
+        "<strong>¿Cómo jugar?</strong><br><br>" +
+        "🗑️ <strong>Recoge los residuos:</strong> Haz clic en los residuos que ves en cada lugar.<br><br>" +
+        "♻️ <strong>Clasifícalos correctamente:</strong> Elige la categoría correcta.<br><br>" +
+        "🏫 <strong>Explora el colegio:</strong> Visita Salón, Cancha y Ciencias.<br><br>" +
+        "👾 <strong>Derrota monstruos:</strong> Gana batallas y limpia el colegio.<br><br>" +
+        "🪙 <strong>Consigue puntos:</strong> Obtén ECO% y EcoCoins.<br><br>" +
+        "<strong>Categorías de residuos:</strong><br>" +
+        "📄 Papel → APROVECHABLE<br>" +
+        "🥤 Plástico → RECICLABLE<br>" +
+        "🍎 Orgánico → ORGÁNICO<br>" +
+        "🥫 Metal → NO APROVECHABLE"
+    );
+
+});
+
+
+/* =========================
+   CARGAR PERSONAJE
+========================= */
+
+function cargarJugador(){
+
+    const jugador =
+        document.getElementById("jugador");
+
+    jugador.innerHTML =
+        `<img src="images/char${personajeSeleccionado}.png" alt="Personaje ${personajeSeleccionado}">`;
+
+}
+
+
+/* =========================
+   MAPA
+========================= */
+
+function abrirSalon(){
+
+    residuosRestantes.salon = 4;
+    document.querySelectorAll("#salon .residuo").forEach(r => r.style.display = "block");
+    pantalla("salon");
+
+}
+
+
+function abrirCancha(){
+
+    residuosRestantes.cancha = 4;
+    document.querySelectorAll("#cancha .residuo-cancha").forEach(r => r.style.display = "block");
+    pantalla("cancha");
+
+}
+
+
+/* =========================
+   RESIDUOS - SALÓN Y CANCHA
+========================= */
+
+document
+.querySelectorAll(".residuo,.residuo-cancha")
+.forEach(function(residuo){
+
+    residuo.addEventListener("click",function(){
+
+        residuoSeleccionado = residuo;
+
+        abrirModal(
+            "🗑️ RESIDUO SELECCIONADO",
+            "Selecciona abajo la categoría correcta para este residuo."
+        );
+
+    });
+
+});
+
+
+/* =========================
+   CLASIFICACIÓN
+========================= */
+
+document
+.querySelectorAll(".categoria")
+.forEach(function(categoria){
+
+    categoria.addEventListener("click",function(){
+
+        if(!residuoSeleccionado){
+
+            abrirModal(
+                "⚠️ ATENCIÓN",
+                "Primero selecciona un residuo haciendo clic en él."
+            );
+
+            return;
+
+        }
+
+        const tipo =
+            residuoSeleccionado.dataset.tipo;
+
+        const seleccion =
+            categoria.dataset.categoria;
+
+        let correcto = false;
+
+
+        if(tipo === "organico" &&
+           seleccion === "organico"){
+
+            correcto = true;
+
+        }
+
+        if(tipo === "papel" &&
+           seleccion === "papel"){
+
+            correcto = true;
+
+        }
+
+        if(tipo === "plastico" &&
+           seleccion === "plastico"){
+
+            correcto = true;
+
+        }
+
+        if(tipo === "metal" &&
+           seleccion === "general"){
+
+            correcto = true;
+
+        }
+
+
+        if(correcto){
+
+            residuoSeleccionado.style.display =
+                "none";
+
+            eco += 10;
+            monedas += 5;
+
+            // Actualizar contador
+            const pantallaActual = document.querySelector(".pantalla.activa").id;
+            if(residuosRestantes[pantallaActual]){
+                residuosRestantes[pantallaActual]--;
+            }
+
+            guardar();
+
+            abrirModal(
+                "✅ ¡CORRECTO!",
+                "♻️ Clasificaste correctamente.<br><br>" +
+                "+10 🌱 ECO<br>" +
+                "+5 🪙 EcoCoins"
+            );
+
+            residuoSeleccionado = null;
+
+        }else{
+
+            eco = Math.max(0,eco - 5);
+
+            guardar();
+
+            abrirModal(
+                "❌ INCORRECTO",
+                "Esa no es la categoría correcta.<br><br>" +
+                "-5 🌱 ECO<br><br>" +
+                "<strong>Pista:</strong><br>" +
+                "📄 Papel → APROVECHABLE<br>" +
+                "🥤 Plástico → RECICLABLE<br>" +
+                "🍎 Orgánico → ORGÁNICO<br>" +
+                "🥫 Metal → NO APROVECHABLE"
+            );
+
+        }
+
+    });
+
+});
+
+
+/* =========================
+   GUARDAR PROGRESO
+========================= */
+
+function guardar(){
+
+    localStorage.setItem(
+        "eco",
+        eco
+    );
+
+    localStorage.setItem(
+        "monedas",
+        monedas
+    );
+
+    document
+    .getElementById("eco")
+    .textContent = eco;
+
+    document
+    .getElementById("monedas")
+    .textContent = monedas;
+
+}
+
+
+/* =========================
+   MINIJUEGO
+========================= */
+
+document
+.getElementById("atacar")
+.addEventListener("click",function(){
+
+    vidaMonstruo--;
+
+    document
+    .getElementById("vida")
+    .textContent = vidaMonstruo;
+
+
+    if(vidaMonstruo <= 0){
+
+        eco += 15;
+        monedas += 10;
+
+        guardar();
+
+        vidaMonstruo = 5;
+
+        document
+        .getElementById("vida")
+        .textContent = vidaMonstruo;
+
+        abrirModal(
+            "👾 ¡MONSTRUO DERROTADO!",
+            "¡Excelente! Limpiaste otra zona del colegio.<br><br>" +
+            "+15 🌱 ECO<br>" +
+            "+10 🪙 EcoCoins<br><br>" +
+            "Haz clic en CERRAR para continuar."
+        );
+
+    }
+
+});
+
+
+/* =========================
+   MODAL
+========================= */
+
+function abrirModal(titulo,texto){
+
+    document
+    .getElementById("modalTitulo")
+    .innerHTML = titulo;
+
+    document
+    .getElementById("modalTexto")
+    .innerHTML = texto;
+
+    document
+    .getElementById("modal")
+    .classList.add("activo");
+
+}
+
+
+function cerrarModal(){
+
+    document
+    .getElementById("modal")
+    .classList.remove("activo");
+
+}
+
+
+/* =========================
+   TECLA ESC PARA CERRAR MODAL
+========================= */
+
+document.addEventListener("keydown", function(event){
+
+    if(event.key === "Escape"){
+
+        cerrarModal();
+
+    }
+
+});
+
+
+/* =========================
+   INICIAR
+========================= */
+
+guardar();
+cargarJugador();
+
+</script>
+
+</body>
+</html>
